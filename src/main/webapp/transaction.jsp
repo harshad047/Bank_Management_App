@@ -5,6 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <title>User Transactions</title>
+<meta name="csrf-token" content="${sessionScope.csrfToken}" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
@@ -93,6 +94,10 @@
 
         <!-- Show Transaction History -->
         <h3 class="mt-4">Recent Transactions</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mt-4">Recent Transactions</h3>
+            <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/user/export-transactions.csv"><i class="fas fa-file-csv"></i> Export CSV</a>
+        </div>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
@@ -120,5 +125,6 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/csrf.js"></script>
 </body>
 </html>

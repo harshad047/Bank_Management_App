@@ -5,6 +5,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="csrf-token" content="${sessionScope.csrfToken}" />
 <title>Arya Vikas Bank - Login</title>
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -66,6 +67,7 @@ body {
 						<!-- Login Form -->
 						<form id="loginForm"
 							action="${pageContext.request.contextPath}/login" method="post">
+							<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 							<h5 class="text-center mb-4">User Login</h5>
 
 							<%
@@ -110,6 +112,7 @@ body {
 						<form id="forgotForm" action="forgot-password" method="post"
 							${param.forgot == null ? 'style="display:none;"' : ''}>
 							<input type="hidden" name="action" value="verify" />
+							<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 							<h5 class="text-center mb-4">Reset Password</h5>
 
 							<%
@@ -190,5 +193,6 @@ body {
 	        });
 	    }
 	</script>
+	<script src="${pageContext.request.contextPath}/js/csrf.js"></script>
 </body>
 </html>
