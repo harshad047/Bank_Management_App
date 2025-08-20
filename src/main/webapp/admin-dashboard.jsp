@@ -1,0 +1,113 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { background-color: #212529; min-height: 100vh; }
+        .sidebar a { color: white; display: block; padding: 10px; text-decoration: none; }
+        .sidebar a:hover { background-color: #343a40; }
+        .card { box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15); }
+    </style>
+</head>
+<body>
+<div class="d-flex">
+    <!-- Sidebar -->
+        <jsp:include page="admin-sidebar.jsp" />
+    
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+        <hr/>
+
+        <!-- KPI Cards -->
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white p-3 rounded-3">
+                    <h5>Total Users</h5>
+                    <h3>${totalUsers}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white p-3 rounded-3">
+                    <h5>Approved</h5>
+                    <h3>${approvedCount}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark p-3 rounded-3">
+                    <h5>Pending</h5>
+                    <h3>${pendingCount}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white p-3 rounded-3">
+                    <h5>Rejected</h5>
+                    <h3>${rejectedCount}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-bell"></i> Recent Activity (Today)</h5>
+                <!-- Filter Dropdown -->
+                <form method="get" action="dashboard" class="d-flex">
+                    <select name="filter" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+                        <option value="ALL" ${selectedFilter == 'ALL' ? 'selected' : ''}>All</option>
+                        <option value="APPROVED" ${selectedFilter == 'APPROVED' ? 'selected' : ''}>Approved</option>
+                        <option value="REJECTED" ${selectedFilter == 'REJECTED' ? 'selected' : ''}>Rejected</option>
+                    </select>
+                </form>
+            </div>
+            <div class="card-body">
+                <c:choose>
+                    <c:when test="${empty todayApprovals}">
+                        <p class="text-muted">No activity found for today.</p>
+                    </c:when>
+                    <c:otherwise>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Approval ID</th>
+                                <th>User ID</th>
+                                <th>Admin ID</th>
+                                <th>Action</th>
+                                <th>Reason</th>
+                                <th>Time</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <c:forEach var="a" items="${todayApprovals}">
+                                <tr>
+                                    <td>${a.approvalId}</td>
+                                    <td>${a.userId}</td>
+                                    <td>${a.adminId}</td>
+                                    <td>
+                                        <span class="badge 
+                                            ${a.action == 'APPROVED' ? 'bg-success' : 
+                                              (a.action == 'REJECTED' ? 'bg-danger' : 'bg-secondary')}">
+                                            ${a.action}
+                                        </span>
+                                    </td>
+                                    <td>${a.reason}</td>
+                                    <td>${a.createdAt}</td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
