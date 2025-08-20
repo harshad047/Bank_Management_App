@@ -62,6 +62,7 @@ public class ForgotPasswordController extends HttpServlet {
             boolean isValid = userService.verifySecurityAnswer(username, questionId, answer);
             if (isValid) {
                 session.setAttribute("resetUsername", username);
+                session.setMaxInactiveInterval(10 * 60);
                 request.setAttribute("showReset", true);
                 request.setAttribute("questions", securityQuestionService.getAllQuestions());
                 request.getRequestDispatcher("/forgot-password.jsp").forward(request, response);

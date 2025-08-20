@@ -55,8 +55,9 @@ public class LoginController extends HttpServlet {
             System.out.println("[DEBUG] User Found: " + user.getUsername() + ", Status: " + user.getStatus());
 
             if ("APPROVED".equals(user.getStatus())) {
-                if (password.equals(user.getPassword())) {
+                if (com.tss.util.PasswordUtil.verify(password, user.getPassword())) {
                     HttpSession session = request.getSession();
+                    session.setMaxInactiveInterval(30 * 60);
                     
                     session.setAttribute("role", "user");
                     session.setAttribute("userId", user.getUserId());

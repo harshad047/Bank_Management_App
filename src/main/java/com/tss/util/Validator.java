@@ -35,6 +35,11 @@ public class Validator {
     // Sanitize input to prevent XSS (basic)
     public static String sanitize(String input) {
         if (input == null) return null;
-        return input.replaceAll("<", "<").replaceAll(">", ">");
+        return input
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;");
     }
 }

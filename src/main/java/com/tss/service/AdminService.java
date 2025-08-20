@@ -14,7 +14,7 @@ public class AdminService {
     public Admin login(String username, String password) {
         try {
             Admin admin = adminDAO.findByUsername(username);
-            if (admin != null && admin.getPassword().equals(password)) { // plain text compare
+            if (admin != null && PasswordUtil.verify(password, admin.getPassword())) {
                 return admin;
             }
         } catch (SQLException e) {
@@ -34,7 +34,8 @@ public class AdminService {
                 return "Username or email already exists.";
             }
 
-            // Hash password later if needed
+            // Hash password before storing
+            admin.setPassword(PasswordUtil.hash(admin.getPassword()));
             admin.setSuperAdmin(admin.isSuperAdmin()); // role set by form
 
             boolean success = adminDAO.createAdmin(admin);

@@ -168,7 +168,7 @@ public class UserService {
             String sql = "UPDATE users SET password = ? WHERE username = ?";
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, newPassword); // plain text
+                ps.setString(1, com.tss.util.PasswordUtil.hash(newPassword));
                 ps.setString(2, username);
                 return ps.executeUpdate() > 0;
             }
@@ -233,21 +233,21 @@ public class UserService {
         }
     }
 
-	public Integer getAccountIdByUserId(int userId) {
-		return accountDAO.getAccountIdByUserId(userId);
-	}
+    public Integer getAccountIdByUserId(int userId) {
+        return accountDAO.getAccountIdByUserId(userId);
+    }
 
-	public boolean updateUser(User user) {
-		return userDAO.updateUser(user);
-	}
+    public boolean updateUser(User user) {
+        return userDAO.updateUser(user);
+    }
 
-	public boolean updateUserStatus(int userId, String newStatus, int adminId) {
-	    try {
-	        return userDAO.updateUserStatus(userId, newStatus, adminId);
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        return false;
-	    }
-	}
+    public boolean updateUserStatus(int userId, String newStatus, int adminId) {
+        try {
+            return userDAO.updateUserStatus(userId, newStatus, adminId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

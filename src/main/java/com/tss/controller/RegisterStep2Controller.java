@@ -69,7 +69,7 @@ public class RegisterStep2Controller extends HttpServlet {
         // Create user
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password);
+        user.setPassword(com.tss.util.PasswordUtil.hash(password));
         user.setEmail(email);
         user.setPhone(phone);
         user.setAccountType((String) session.getAttribute("tempAccountType"));

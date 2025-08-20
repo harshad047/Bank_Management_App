@@ -141,7 +141,7 @@ public class UserDAO {
 		}
 		return null;
 	}
-
+	
 	// Update approved user (status, approved_by, approved_at)
 	public boolean updateApprovedUser(User user) throws SQLException {
 		String sql = "UPDATE users SET status = ?, approved_by = ?, approved_at = ? WHERE user_id = ?";
@@ -166,7 +166,7 @@ public class UserDAO {
 			}
 		}
 	}
-
+	
 	// List all users (for admin)
 	public List<User> getAllUsers() throws SQLException {
 		List<User> users = new ArrayList<>();
@@ -180,7 +180,7 @@ public class UserDAO {
 		}
 		return users;
 	}
-
+	
 	// Map ResultSet to User
 	private User mapToUser(ResultSet rs) throws SQLException {
 		User user = new User();
@@ -215,7 +215,7 @@ public class UserDAO {
 			}
 		}
 	}
-
+	
 	public boolean deactivateUser(int userId, int adminId) throws SQLException {
 		String sql = "UPDATE users SET status = 'DEACTIVATED', updated_at = NOW() WHERE user_id = ? AND status IN ('APPROVED', 'PENDING', 'REJECTED')";
 		try (Connection conn = DBConnection.getConnection()) {
@@ -227,7 +227,7 @@ public class UserDAO {
 					conn.rollback();
 					return false;
 				}
-
+				
 				// Optional: Log in admin_approvals table
 				String logSql = "INSERT INTO admin_approvals (user_id, admin_id, action, reason, created_at) VALUES (?, ?, 'DEACTIVATED', 'User deactivated by admin', NOW())";
 				try (PreparedStatement logPs = conn.prepareStatement(logSql)) {
@@ -238,7 +238,7 @@ public class UserDAO {
 						return false;
 					}
 				}
-
+				
 				conn.commit();
 				return true;
 			} catch (SQLException e) {
@@ -247,9 +247,9 @@ public class UserDAO {
 			}
 		}
 	}
-
+	
 	// com.tss.dao.UserDAO.java
-
+	
 	public long getNewRegistrationsToday() throws SQLException {
 		String sql = "SELECT COUNT(*) FROM users WHERE DATE(created_at) = CURDATE()";
 		try (Connection conn = DBConnection.getConnection();
@@ -261,30 +261,30 @@ public class UserDAO {
 			return 0;
 		}
 	}
-
+	
 	public boolean updateUser(User user) {
 		StringBuilder sql = new StringBuilder("UPDATE users SET email=?, phone=?");
 		if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
 			sql.append(", password=?");
 		}
 		sql.append(" WHERE user_id=?");
-
+		
 		try (Connection con = DBConnection.getConnection();
 				PreparedStatement ps = con.prepareStatement(sql.toString())) {
-
+			
 			ps.setString(1, user.getEmail());
 			ps.setString(2, user.getPhone());
-
+			
 			int paramIndex = 3;
 			if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
-				ps.setString(paramIndex++, user.getPassword());
+				ps.setString(paramIndex++, com.tss.util.PasswordUtil.hash(user.getPassword()));
 			}
-
+			
 			ps.setInt(paramIndex, user.getUserId());
-
+			
 			int updatedRows = ps.executeUpdate();
 			return updatedRows > 0;
-
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -295,7 +295,7 @@ public class UserDAO {
 	    String sql = "SELECT status FROM users WHERE user_id = ?";
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
-
+			
 	        ps.setInt(1, userId);
 	        try (ResultSet rs = ps.executeQuery()) {
 	            if (rs.next()) {
@@ -312,19 +312,19 @@ public class UserDAO {
 	    String sql = "UPDATE users SET status = ? WHERE user_id = ?";
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
-
+			
 	        ps.setString(1, newStatus);
 	        ps.setInt(2, userId);
-
+			
 	        int rows = ps.executeUpdate();
-
+			
 	        // ✅ Insert audit trail into admin_approvals table
 	        if (rows > 0) {
 	            String approvalSql = "INSERT INTO admin_approvals (user_id, admin_id, action, reason) VALUES (?, ?, ?, ?)";
 	            try (PreparedStatement ps2 = conn.prepareStatement(approvalSql)) {
 	                ps2.setInt(1, userId);
 	                ps2.setInt(2, adminId);
-
+				
 	                // 🔹 action ENUM only accepts APPROVED / REJECTED
 	                if ("ACTIVE".equalsIgnoreCase(newStatus)) {
 	                    ps2.setString(3, "APPROVED");
@@ -333,15 +333,15 @@ public class UserDAO {
 	                } else {
 	                    ps2.setString(3, "APPROVED"); // default for DEACTIVATED / other statuses
 	                }
-
+				
 	                ps2.setString(4, "Status updated to " + newStatus + " by admin");
 	                ps2.executeUpdate();
 	            }
 	        }
-
+			
 	        return rows > 0;
 	    }
 	}
-
-
+	
+	
 }

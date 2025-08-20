@@ -5,10 +5,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/bank_management";
-    private static final String USERNAME = "root";  // Change as needed
-    private static final String PASSWORD = "Fggv@676"; // Change as needed
-    private static Connection connection = null;
+    private static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/bank_management";
+    private static final String URL = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : DEFAULT_URL;
+    private static final String USERNAME = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
+    private static final String PASSWORD = System.getenv("DB_PASS") != null ? System.getenv("DB_PASS") : "";
 
     static {
         try {
@@ -19,12 +19,8 @@ public class DBConnection {
     }
 
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        }
-        return connection;
+        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
-    // Prevent external instantiation
     private DBConnection() {}
 }
