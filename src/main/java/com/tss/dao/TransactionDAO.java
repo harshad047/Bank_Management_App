@@ -447,8 +447,8 @@ public class TransactionDAO {
     public double getTotalByTypeLastMonth(int userId, String type) throws SQLException {
         String sql = "SELECT COALESCE(SUM(amount),0) " +
                      "FROM transactions " +
-                     "WHERE user_id = ? AND type = ? " +
-                     "AND transaction_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+                     "WHERE user_id = ? AND txn_type = ? " +
+                     "AND txn_time >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);

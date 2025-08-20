@@ -11,6 +11,13 @@
         .sidebar { background-color: #1565c0; min-height: 100vh; }
         .sidebar a { color: white; }
         .sidebar a:hover { background-color: #0d47a1; }
+        /* Make chart smaller and centered */
+        #transactionPieChart {
+            max-width: 250px;
+            max-height: 250px;
+            margin: 0 auto;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +67,7 @@
                     <div class="card-header bg-secondary text-white">
                         Last Month Credit vs Debit
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-center">
                         <canvas id="transactionPieChart"></canvas>
                         <p class="mt-3 text-muted small">
                             Showing transactions for the last 30 days.
@@ -87,7 +94,7 @@
             }]
         },
         options: {
-            responsive: true,
+            responsive: false, // fixed size chart
             plugins: {
                 legend: { position: 'bottom' }
             }
