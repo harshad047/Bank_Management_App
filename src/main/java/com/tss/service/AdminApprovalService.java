@@ -35,4 +35,14 @@ public class AdminApprovalService {
             return Collections.emptyList();
         }
     }
+    
+    public boolean logApproval(int userId, int adminId, String action, String reason)
+    {
+    	try {
+			return approvalDao.logApproval(userId, adminId, action, reason);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+    }
 }

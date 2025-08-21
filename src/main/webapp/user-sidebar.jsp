@@ -29,6 +29,16 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="${pageContext.request.contextPath}/user/apply-fd" class="nav-link">
+                <i class="fas fa-certificate"></i> Apply FD
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="${pageContext.request.contextPath}/user/my-fds" class="nav-link">
+                <i class="fas fa-box"></i> My FDs
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="${pageContext.request.contextPath}/user-profile" class="nav-link">
                 <i class="fas fa-user-cog"></i> Profile
             </a>
