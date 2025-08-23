@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,12 +12,17 @@
         .sidebar { background-color: #1565c0; min-height: 100vh; }
         .sidebar a { color: white; }
         .sidebar a:hover { background-color: #0d47a1; }
-        /* Make chart smaller and centered */
         #transactionPieChart {
             max-width: 250px;
             max-height: 250px;
             margin: 0 auto;
             display: block;
+        }
+        .form-card { border: 1px solid #dee2e6; border-radius: 8px; }
+        .quick-action-btn {
+            margin-bottom: 10px;
+            font-size: 16px;
+            padding: 12px;
         }
     </style>
 </head>
@@ -60,10 +66,11 @@
             </div>
         </div>
 
-        <!-- Pie Chart Section -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
+        <!-- Pie Chart + Quick Actions Side by Side -->
+        <div class="row mt-4 g-3">
+            <!-- Pie Chart -->
+            <div class="col-md-6 d-flex">
+                <div class="card shadow-sm w-100 h-100">
                     <div class="card-header bg-secondary text-white">
                         Last Month Credit vs Debit
                     </div>
@@ -75,8 +82,33 @@
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- Quick Actions -->
+            <div class="col-md-6 d-flex">
+                <div class="card shadow-sm w-100 h-100">
+                    <div class="card-header bg-dark text-white">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <a href="${pageContext.request.contextPath}/user/transfer" class="btn btn-primary quick-action-btn">
+                            <i class="fas fa-money-check-alt"></i> Transfer Money
+                        </a>
+                        <a href="${pageContext.request.contextPath}/user/passbook" class="btn btn-success quick-action-btn">
+                            <i class="fas fa-book"></i> View Passbook
+                        </a>
+                        <a href="${pageContext.request.contextPath}/user/apply-fd" class="btn btn-warning quick-action-btn">
+                            <i class="fas fa-hand-holding-usd"></i> Apply FD
+                        </a>
+                        <a href="${pageContext.request.contextPath}/user-profile" class="btn btn-info quick-action-btn">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="${pageContext.request.contextPath}/logout" class="btn btn-danger quick-action-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -94,12 +126,13 @@
             }]
         },
         options: {
-            responsive: false, // fixed size chart
+            responsive: false,
             plugins: {
                 legend: { position: 'bottom' }
             }
         }
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
