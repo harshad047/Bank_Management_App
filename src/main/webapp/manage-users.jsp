@@ -123,10 +123,7 @@ body {
 							<td><%=u.getPhone() != null ? u.getPhone() : "N/A"%></td>
 							<td><%=u.getAccountType()%></td>
 							<td><span class="badge <%=badgeClass%>"><%=status%></span></td>
-							<td class="text-center"><a
-								href="view-user?userId=<%=u.getUserId()%>"
-								class="btn btn-info btn-sm"> <i class="fas fa-eye"></i>
-							</a> <!-- Edit Button (Modal Trigger) -->
+							<td class="text-center">
 								<button type="button" class="btn btn-warning btn-sm"
 									data-bs-toggle="modal"
 									data-bs-target="#editModal<%=u.getUserId()%>">
