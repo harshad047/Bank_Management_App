@@ -120,7 +120,7 @@ body {
 							<table class="table table-striped">
 								<thead>
 									<tr>
-										<th>Approval ID</th>
+										<th>Activity ID</th>
 										<th>User ID</th>
 										<th>Admin ID</th>
 										<th>Action</th>
