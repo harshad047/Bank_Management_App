@@ -36,7 +36,7 @@
     <div class="flex-grow-1 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-door-open"></i> Close Active FDs</h2>
-            <a href="manage-fds" class="btn btn-outline-secondary btn-sm">
+            <a href="${pageContext.request.contextPath}/admin/manage-fds" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>

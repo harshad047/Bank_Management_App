@@ -1,5 +1,3 @@
-<!-- webapp/admin/admin-analysis.jsp -->
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -14,6 +12,12 @@
         body { background-color: #f4f6f9; }
         .chart-container { max-width: 800px; margin: 30px auto; }
         .card { border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .chart-small {
+    max-width: 300px;   /* control width */
+    max-height: 300px;  /* control height */
+    margin: 0 auto;     /* center align */
+}
+        
     </style>
 </head>
 <body>
@@ -63,25 +67,32 @@
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Monthly Transactions</div>
-                    <div class="card-body">
-                        <canvas id="transactionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">User Status Distribution</div>
-                    <div class="card-body">
-                        <canvas id="userStatusChart"></canvas>
-                    </div>
+<div class="row">
+    <!-- Credit vs Debit -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Credit vs Debit Distribution</div>
+            <div class="card-body text-center">
+                <div class="chart-small">
+                    <canvas id="transactionChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- User Status -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">User Status Distribution</div>
+            <div class="card-body text-center">
+                <div class="chart-small">
+                    <canvas id="userStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
         <!-- Monthly Summary Table -->
         <div class="card mt-4">
@@ -112,42 +123,32 @@
 
 <!-- Chart.js Scripts -->
 <script>
-    // Monthly Transaction Chart
-    const months = [<c:forTokens items="${chartLabels}" delims="," var="label">"${label}",</c:forTokens>];
-    const credits = [<c:forTokens items="${chartCredits}" delims="," var="amt">"${amt}",</c:forTokens>];
-    const debits = [<c:forTokens items="${chartDebits}" delims="," var="amt">"${amt}",</c:forTokens>];
+    // --- Calculate total credits & debits ---
+    const creditValues = [<c:forTokens items="${chartCredits}" delims="," var="amt">${amt},</c:forTokens>];
+    const debitValues = [<c:forTokens items="${chartDebits}" delims="," var="amt">${amt},</c:forTokens>];
 
+    const totalCredit = creditValues.reduce((a, b) => a + parseFloat(b), 0);
+    const totalDebit = debitValues.reduce((a, b) => a + parseFloat(b), 0);
+
+    // Transaction Pie Chart
     new Chart(document.getElementById('transactionChart'), {
-        type: 'line',
-         {
-            labels: months,
-            datasets: [
-                {
-                    label: 'Income (₹)',
-                    data: credits,
-                    backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 2
-                },
-                {
-                    label: 'Expenses (₹)',
-                    data: debits,
-                    backgroundColor: 'rgba(220, 53, 69, 0.2)',
-                    borderColor: 'rgba(220, 53, 69, 1)',
-                    borderWidth: 2
-                }
-            ]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        type: 'pie',
+        data: {
+            labels: ['Total Credit', 'Total Debit'],
+            datasets: [{
+                data: [totalCredit, totalDebit],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        }
     });
 
     // User Status Pie Chart
     new Chart(document.getElementById('userStatusChart'), {
         type: 'pie',
-         {
+        data: {
             labels: ['Approved', 'Pending', 'Rejected'],
             datasets: [{
-                 [${approvedCount}, ${pendingCount}, ${rejectedCount}],
+                data: [${approvedCount}, ${pendingCount}, ${rejectedCount}],
                 backgroundColor: ['#28a745', '#ffc107', '#dc3545']
             }]
         }

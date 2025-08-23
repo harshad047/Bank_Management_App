@@ -342,6 +342,26 @@ public class UserDAO {
 	        return rows > 0;
 	    }
 	}
+	
+	 public int getTotalCustomers() throws SQLException {
+	        String sql = "SELECT COUNT(*) FROM users";
+	        try (Connection conn = DBConnection.getConnection();
+	             Statement st = conn.createStatement();
+	             ResultSet rs = st.executeQuery(sql)) {
+	            if (rs.next()) return rs.getInt(1);
+	        }
+	        return 0;
+	    }
 
+	    // New Customers Today
+	    public int getNewCustomersToday() throws SQLException {
+	        String sql = "SELECT COUNT(*) FROM users WHERE DATE(created_at) = CURDATE()";
+	        try (Connection conn = DBConnection.getConnection();
+	             Statement st = conn.createStatement();
+	             ResultSet rs = st.executeQuery(sql)) {
+	            if (rs.next()) return rs.getInt(1);
+	        }
+	        return 0;
+	    }
 
 }

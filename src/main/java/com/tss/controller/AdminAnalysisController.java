@@ -7,6 +7,7 @@ import com.tss.service.AccountService;
 import com.tss.service.TransactionService;
 import com.tss.service.UserService;
 import com.tss.util.SessionUtils;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,14 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @WebServlet("/admin/analysis")
 public class AdminAnalysisController extends HttpServlet {
 
-    private UserService userService = new UserService();
-    private AccountService accountService = new AccountService();
-    private TransactionService transactionService = new TransactionService();
+    private final UserService userService = new UserService();
+    private final AccountService accountService = new AccountService();
+    private final TransactionService transactionService = new TransactionService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -52,7 +52,8 @@ public class AdminAnalysisController extends HttpServlet {
             StringBuilder debits = new StringBuilder();
 
             for (MonthlySummary m : monthlySummary) {
-                append(labels, m.getLabel());
+                // wrap labels in quotes for valid JS array
+                append(labels, "\"" + m.getLabel() + "\"");
                 append(credits, m.getTotalCredit().toString());
                 append(debits, m.getTotalDebit().toString());
             }

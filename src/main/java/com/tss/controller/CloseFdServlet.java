@@ -27,6 +27,7 @@ public class CloseFdServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
         Integer adminId = (Integer) session.getAttribute("adminId");  // ✅ correct key
+        int fdAppId = getInt(req, "fdAppId");
 
         if (adminId == null) {
             session.setAttribute("error", "Please login as admin.");
@@ -35,6 +36,7 @@ public class CloseFdServlet extends HttpServlet {
         }
 
         int fdId = getInt(req, "fdId");
+        
         if (fdId <= 0) {
             session.setAttribute("error", "Invalid FD ID.");
             resp.sendRedirect("fd-dashboard?view=close");
@@ -43,6 +45,7 @@ public class CloseFdServlet extends HttpServlet {
 
         // Get FD
         FixedDeposit fd = fdService.getFixedDepositById(fdId);
+        fdService.updateStatusOfFD(fdAppId);
         if (fd == null || !"ACTIVE".equals(fd.getStatus())) {
             session.setAttribute("error", "FD not found or already closed.");
             resp.sendRedirect("fd-dashboard?view=close");
@@ -51,6 +54,7 @@ public class CloseFdServlet extends HttpServlet {
 
         // Close FD
         boolean closed = fdService.closeFixedDeposit(fdId);
+        
         if (!closed) {
             session.setAttribute("error", "Failed to close FD.");
             resp.sendRedirect("fd-dashboard?view=close");
@@ -74,7 +78,7 @@ public class CloseFdServlet extends HttpServlet {
         }
 
         // Redirect back
-        resp.sendRedirect("fd-dashboard?view=close");
+        resp.sendRedirect(req.getContextPath() + "/fd-close.jsp");
     }
 
     private int getInt(HttpServletRequest req, String param) {

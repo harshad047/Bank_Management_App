@@ -18,9 +18,9 @@ public class FdService {
         return fdDAO.getPendingApplications();
     }
 
-    public List<FdApplication> getMyApplications(int userId) {
-        return fdDAO.getApplicationsByUser(userId);
-    }
+//    public List<FdApplication> getMyApplications(int userId) {
+//        return fdDAO.getApplicationsByUser(userId);
+//    }
 
     public boolean approveFd(int fdAppId, int adminId) {
         return fdDAO.approveFd(fdAppId, adminId);
@@ -41,11 +41,9 @@ public class FdService {
     public List<UserFdView> getUserFdSummary(int userId) {
         return fdDAO.getUserFdSummary(userId);
     }
-    
- // com.tss.service.FdService.java
 
-    public boolean closeFd(int fdId) {
-        return fdDAO.closeFixedDeposit(fdId);
+    public boolean updateStatusOfFD(int fdId) {
+        return fdDAO.updateStatusFixedDeposit(fdId);
     }
     
     public List<FixedDeposit> getActiveFixedDeposits() {
@@ -62,7 +60,8 @@ public class FdService {
 	}
 
 	public boolean closeFixedDeposit(int fdId) {
-		// TODO Auto-generated method stub
 		return fdDAO.closeFixedDeposit(fdId);
 	}
+	
+	
 }

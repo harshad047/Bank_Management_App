@@ -67,7 +67,7 @@ public class ApproveFdServlet extends HttpServlet {
         }
 
         // ✅ 5. Redirect back to approve view
-        resp.sendRedirect("fd-dashboard?view=approve");
+        resp.sendRedirect(req.getContextPath() + "/fd-approve.jsp");
     }
 
     // Utility method to safely parse int

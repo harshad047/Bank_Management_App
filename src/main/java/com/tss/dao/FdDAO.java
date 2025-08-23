@@ -180,24 +180,26 @@ public class FdDAO {
         return app;
     }
 
-    // Get FDs by user
     public List<UserFdView> getUserFdSummary(int userId) {
         List<UserFdView> summary = new ArrayList<>();
 
-        // 1. Add Approved FDs (Active)
-        String fdSql = "SELECT * FROM fixed_deposits WHERE user_id = ?";
+        // 1. Applications (PENDING, REJECTED, APPROVED but not yet in FD table)
+        String appSql = "SELECT fd_app_id, amount, tenure_months, interest_rate, application_date, status, rejection_reason " +
+                        "FROM fd_applications WHERE user_id = ? ORDER BY application_date DESC";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(fdSql)) {
+             PreparedStatement ps = conn.prepareStatement(appSql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     summary.add(new UserFdView(
+                        rs.getInt("fd_app_id"),
                         rs.getDouble("amount"),
                         rs.getInt("tenure_months"),
                         rs.getDouble("interest_rate"),
-                        rs.getDate("start_date").toLocalDate(),
-                        rs.getDate("maturity_date").toLocalDate(),
-                        rs.getDouble("maturity_amount")
+                        rs.getTimestamp("application_date").toLocalDateTime(),
+                        rs.getString("status"),
+                        rs.getString("rejection_reason")
                     ));
                 }
             }
@@ -205,18 +207,25 @@ public class FdDAO {
             e.printStackTrace();
         }
 
-        // 2. Add Pending Applications
-        String appSql = "SELECT * FROM fd_applications WHERE user_id = ? AND status = 'PENDING'";
+        // 2. Fixed Deposits (ACTIVE, MATURED, CLOSED)
+        String fdSql = "SELECT fd_id, fd_app_id, amount, tenure_months, interest_rate, start_date, maturity_date, maturity_amount, status " +
+                       "FROM fixed_deposits WHERE user_id = ? ORDER BY created_at DESC";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(appSql)) {
+             PreparedStatement ps = conn.prepareStatement(fdSql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     summary.add(new UserFdView(
+                        rs.getInt("fd_id"),
+                        rs.getInt("fd_app_id"),
                         rs.getDouble("amount"),
                         rs.getInt("tenure_months"),
                         rs.getDouble("interest_rate"),
-                        rs.getTimestamp("application_date").toLocalDateTime()
+                        rs.getDate("start_date").toLocalDate(),
+                        rs.getDate("maturity_date").toLocalDate(),
+                        rs.getDouble("maturity_amount"),
+                        rs.getString("status")
                     ));
                 }
             }
@@ -226,6 +235,7 @@ public class FdDAO {
 
         return summary;
     }
+
     
     public boolean closeFixedDeposit(int fdId) {
         String sql = "UPDATE fixed_deposits SET status = 'CLOSED', updated_at = CURRENT_TIMESTAMP WHERE fd_id = ? AND status = 'ACTIVE'";
@@ -238,6 +248,24 @@ public class FdDAO {
             int rowsAffected = ps.executeUpdate();
             
             // Returns true if one active FD was closed
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean updateStatusFixedDeposit(int fdId) {
+        String sql = "UPDATE fd_applications SET status = 'CLOSED' WHERE fd_app_id = ? AND AND status = 'APPROVED'";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, fdId);
+            
+            int rowsAffected = ps.executeUpdate();
+            
             return rowsAffected > 0;
 
         } catch (SQLException e) {

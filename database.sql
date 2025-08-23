@@ -293,7 +293,7 @@ VALUES
 ALTER TABLE admin_approvals 
 MODIFY COLUMN action ENUM('APPROVED','REJECTED','DEACTIVATED') NOT NULL;
 
-
+use bank_management;
 -- 1) FD Applications (user submits request)
 DROP TABLE IF EXISTS fd_applications;
 CREATE TABLE fd_applications (
@@ -319,29 +319,90 @@ CREATE TABLE fd_applications (
         ON UPDATE RESTRICT ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 2) Fixed Deposits (once approved)
+-- Drop table if exists
 DROP TABLE IF EXISTS fixed_deposits;
+
 CREATE TABLE fixed_deposits (
     fd_id             INT AUTO_INCREMENT PRIMARY KEY,
-    fd_app_id         INT NOT NULL UNIQUE, -- one FD per application
+    fd_app_id         INT NOT NULL UNIQUE,
     user_id           INT NOT NULL,
     account_id        INT NOT NULL,
     amount            DECIMAL(15,2) NOT NULL,
     tenure_months     INT NOT NULL,
     interest_rate     DECIMAL(5,2) NOT NULL,
     maturity_amount   DECIMAL(15,2) NOT NULL,
-    start_date        DATE NOT NULL DEFAULT current_timestamp
+    start_date        DATE NOT NULL DEFAULT (CURRENT_DATE),
     maturity_date     DATE NOT NULL,
     status            ENUM('ACTIVE', 'MATURED', 'CLOSED') NOT NULL DEFAULT 'ACTIVE',
     created_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_fd_app
+
+    -- Use unique constraint names to avoid "duplicate" error
+    CONSTRAINT fk_fixed_deposit_app
         FOREIGN KEY (fd_app_id) REFERENCES fd_applications(fd_app_id)
         ON UPDATE RESTRICT ON DELETE CASCADE,
-    CONSTRAINT fk_fd_user
+
+    CONSTRAINT fk_fixed_deposit_user
         FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON UPDATE RESTRICT ON DELETE CASCADE,
-    CONSTRAINT fk_fd_account
+
+    CONSTRAINT fk_fixed_deposit_account
         FOREIGN KEY (account_id) REFERENCES accounts(account_id)
         ON UPDATE RESTRICT ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+
+-- fd-setup.sql
+-- Insert FD Applications (Users apply)
+INSERT INTO fd_applications (user_id, account_id, amount, tenure_months, interest_rate, status)
+SELECT 
+    u.user_id,
+    a.account_id,
+    5000.00,
+    12,
+    6.80,
+    'PENDING'
+FROM users u
+JOIN accounts a ON u.user_id = a.user_id
+WHERE u.username = 'john_doe'
+LIMIT 1;
+
+INSERT INTO fd_applications (user_id, account_id, amount, tenure_months, interest_rate, status)
+SELECT 
+    u.user_id,
+    a.account_id,
+    10000.00,
+    24,
+    7.00,
+    'APPROVED'
+FROM users u
+JOIN accounts a ON u.user_id = a.user_id
+WHERE u.username = 'jane_smith'
+LIMIT 1;
+
+-- Approve one application manually
+UPDATE fd_applications 
+SET 
+    status = 'APPROVED',
+    approved_by = 1,
+    approved_at = NOW()
+WHERE status = 'PENDING' AND user_id = (
+    SELECT user_id FROM users WHERE username = 'john_doe'
+);
+
+-- Insert Fixed Deposits for approved applications
+INSERT INTO fixed_deposits (fd_app_id, user_id, account_id, amount, tenure_months, interest_rate, maturity_amount, start_date, maturity_date, status)
+SELECT 
+    fa.fd_app_id,
+    fa.user_id,
+    fa.account_id,
+    fa.amount,
+    fa.tenure_months,
+    fa.interest_rate,
+    ROUND(fa.amount * POW(1 + fa.interest_rate / 100 / 12, fa.tenure_months), 2),
+    CURRENT_DATE,
+    DATE_ADD(CURRENT_DATE, INTERVAL fa.tenure_months MONTH),
+    'ACTIVE'
+FROM fd_applications fa
+WHERE fa.status = 'APPROVED'
+  AND NOT EXISTS (SELECT 1 FROM fixed_deposits fd WHERE fd.fd_app_id = fa.fd_app_id);
