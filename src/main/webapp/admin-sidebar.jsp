@@ -47,6 +47,10 @@ body {
 			class="nav-link"> <i class="fas fa-check-circle"></i> Approve
 				Users
 		</a></li>
+		<li class="nav-item"><a
+			href="${pageContext.request.contextPath}/admin/complaints"
+			class="nav-link"> <i class="fas fa-comment-alt"></i> Complaints
+		</a></li>
 		<!-- 🔹 NEW: Manage FDs -->
 		<li class="nav-item"><a
 			href="${pageContext.request.contextPath}/admin/manage-fds"
