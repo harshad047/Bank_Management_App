@@ -67,15 +67,10 @@ body { background-color: #f4f6f9; }
             if (request.getAttribute("success") != null) {
         %>
             <div class="alert alert-success"><%=request.getAttribute("success")%></div>
-        <%
-            }
-            if (request.getAttribute("error") != null) {
-        %>
-            <div class="alert alert-danger"><%=request.getAttribute("error")%></div>
-        <%
-            }
-        %>
-
+            <%} %>
+            
+        
+		
         <!-- Export Buttons -->
         <div class="mb-3 d-flex justify-content-end gap-2">
             <button class="btn btn-danger btn-sm" onclick="downloadPDF()">
