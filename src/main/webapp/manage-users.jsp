@@ -2,8 +2,25 @@
 <%@ page import="java.util.List"%>
 <%@ page import="com.tss.model.User"%>
 <%
-List<User> users = (List<User>) request.getAttribute("users");
-String searchQuery = request.getParameter("search") != null ? request.getParameter("search") : "";
+    List<User> users = (List<User>) request.getAttribute("users");
+    String searchQuery = request.getParameter("search") != null ? request.getParameter("search") : "";
+
+    // ✅ Pagination settings
+    int recordsPerPage = 5;
+    int currentPage = 1;
+    if (request.getParameter("page") != null) {
+        try {
+            currentPage = Integer.parseInt(request.getParameter("page"));
+        } catch (NumberFormatException e) {
+            currentPage = 1;
+        }
+    }
+
+    int totalRecords = (users != null) ? users.size() : 0;
+    int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+    int startIndex = (currentPage - 1) * recordsPerPage;
+    int endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
 %>  
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +109,8 @@ body { background-color: #f4f6f9; }
                     </tr>
                     <%
                     } else {
-                        for (User u : users) {
+                        for (int i = startIndex; i < endIndex; i++) {
+                            User u = users.get(i);
                             String status = u.getStatus() != null ? u.getStatus() : "UNKNOWN";
                             String badgeClass = "PENDING".equals(status) ? "bg-warning text-dark"
                                 : "APPROVED".equals(status) ? "bg-success" 
@@ -107,14 +125,18 @@ body { background-color: #f4f6f9; }
                         <td><%=u.getAccountType()%></td>
                         <td><span class="badge <%=badgeClass%>"><%=status%></span></td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-warning btn-sm"
-                                data-bs-toggle="modal" data-bs-target="#editModal<%=u.getUserId()%>">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal" data-bs-target="#deleteModal<%=u.getUserId()%>">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <% if ("PENDING".equals(status)) { %>
+                                <span class="text-muted">Approval Pending</span>
+                            <% } else { %>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#editModal<%=u.getUserId()%>">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal<%=u.getUserId()%>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            <% } %>
                         </td>
                     </tr>
 
@@ -179,6 +201,23 @@ body { background-color: #f4f6f9; }
                 </tbody>
             </table>
         </div>
+
+        <!-- ✅ Pagination Controls -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item <%= (currentPage == 1) ? "disabled" : "" %>">
+                    <a class="page-link" href="?page=<%=currentPage - 1%>&search=<%=searchQuery%>">Previous</a>
+                </li>
+                <% for (int i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
+                        <a class="page-link" href="?page=<%=i%>&search=<%=searchQuery%>"><%=i%></a>
+                    </li>
+                <% } %>
+                <li class="page-item <%= (currentPage == totalPages) ? "disabled" : "" %>">
+                    <a class="page-link" href="?page=<%=currentPage + 1%>&search=<%=searchQuery%>">Next</a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 

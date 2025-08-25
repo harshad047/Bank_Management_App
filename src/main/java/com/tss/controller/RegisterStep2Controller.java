@@ -77,7 +77,7 @@ public class RegisterStep2Controller extends HttpServlet {
         // Register
         String result = userService.registerUser(user, questionId, answer);
         if ("SUCCESS".equals(result)) {
-            session.removeAttribute("tempAccountType"); // Clean up
+            session.removeAttribute("tempAccountType"); 
             request.setAttribute("success", "Registration successful! Awaiting admin approval.");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         } else {
