@@ -102,7 +102,7 @@ body {
 								<a href="?forgot=true" class="text-decoration-none small">Forgot
 									Password?</a>
 									<br>
-									<a href="register/step1" class="text-decoration-none small">Don't have account? Register</a>
+									<a href="${pageContext.request.contextPath}/register/step1" class="text-decoration-none small">Don't have account? Register</a>
 							</div>
 						</form>
 
