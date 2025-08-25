@@ -109,7 +109,7 @@
 <script>
     $(document).ready(function () {
         $('#txnTable').DataTable({
-            "pageLength": 10,
+            "pageLength": 5,
             "lengthMenu": [10, 25, 50, 100],
             "ordering": true,
             "searching": true,
