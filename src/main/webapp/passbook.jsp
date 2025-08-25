@@ -7,23 +7,18 @@
     <title>Arya Vikas Bank - Passbook</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <style>
-    body { font-family: Arial, sans-serif; background-color: #f2f5f7; }
-    .sidebar { background-color: #1565c0; min-height: 100vh; }
-    .sidebar a { color: white; text-decoration: none; display: block; padding: 12px; }
-    .sidebar a:hover { background-color: #0d47a1; }
-    .passbook-header { text-align: center; margin-bottom: 30px; }
-    .passbook-header h2 { color: #0047b3; font-weight: bold; }
-    .account-card { margin-bottom: 30px; }
-    .transactions-table th, .transactions-table td { text-align: center; }
-    .card h2 { font-weight: bold; }
-    .main-content { flex-grow: 1; padding: 20px; }
-
-    @media print {
-        .no-print { display: none; }       /* Hides print button */
-        .sidebar { display: none; }       /* Hides sidebar */
-        body { background-color: white; }  /* Remove background for print */
-    }
-</style>
+        body { font-family: Arial, sans-serif; background-color: #f2f5f7; }
+        .sidebar { background-color: #1565c0; min-height: 100vh; }
+        .sidebar a { color: white; text-decoration: none; display: block; padding: 12px; }
+        .sidebar a:hover { background-color: #0d47a1; }
+        .passbook-header { text-align: center; margin-bottom: 30px; }
+        .passbook-header h2 { color: #0047b3; font-weight: bold; }
+        .account-card { margin-bottom: 30px; }
+        .transactions-table th, .transactions-table td { text-align: center; }
+        .card h2 { font-weight: bold; }
+        .main-content { flex-grow: 1; padding: 20px; }
+        .no-print { margin-bottom: 20px; }
+    </style>
 </head>
 <body>
 <div class="d-flex">
@@ -54,9 +49,19 @@
             </div>
         </div>
 
+        <!-- Export Buttons -->
+        <div class="text-end no-print">
+            <button class="btn btn-danger btn-sm" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+            <button class="btn btn-success btn-sm" onclick="downloadExcel()">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+        </div>
+
         <!-- Transactions Table -->
         <h5>Recent Transactions</h5>
-        <table class="table table-bordered transactions-table">
+        <table id="txnTable" class="table table-bordered transactions-table">
             <thead class="table-dark">
                 <tr>
                     <th>Date & Time</th>
@@ -78,13 +83,31 @@
                 </c:forEach>
             </tbody>
         </table>
-
-        <!-- Print Button -->
-        <div class="text-center my-4 no-print">
-            <button onclick="window.print()" class="btn btn-primary">Print Passbook</button>
-        </div>
-
     </div>
 </div>
+
+<!-- Export Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://kit.fontawesome.com/a2e0e6ad62.js" crossorigin="anonymous"></script>
+
+<script>
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Arya Vikas Bank - Passbook", 14, 10);
+    doc.text("Account: ${account.accountHolderName} (${account.accountNumber})", 14, 18);
+    doc.autoTable({ html: "#txnTable", startY: 28 });
+    doc.save("passbook.pdf");
+}
+
+function downloadExcel() {
+    var table = document.getElementById("txnTable");
+    var wb = XLSX.utils.table_to_book(table, { sheet: "Passbook" });
+    XLSX.writeFile(wb, "passbook.xlsx");
+}
+</script>
+
 </body>
 </html>

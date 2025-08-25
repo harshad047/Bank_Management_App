@@ -175,7 +175,7 @@ body {
 	    const loginForm = document.getElementById('loginForm');
 	    const forgotForm = document.getElementById('forgotForm');
 	
-	    if (loginLink) {
+	    if (loginLink) { 
 	        loginLink.addEventListener('click', (e) => {
 	            e.preventDefault();
 	            loginForm.style.display = 'none';

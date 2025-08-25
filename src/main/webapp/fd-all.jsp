@@ -12,6 +12,11 @@
     <title>All Fixed Deposits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
     <style>
         body { background-color: #f4f6f9; }
         .sidebar { background: #1a2537; }
@@ -30,17 +35,6 @@
                 <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
-
-        <!-- Filter Section -->
-        <div class="filter-section mb-4">
-            <label><strong>Filter by Status:</strong></label>
-            <select id="statusFilter" class="form-select" style="max-width: 300px;">
-                <option value="">All</option>
-                <option value="ACTIVE">Active</option>
-                <option value="CLOSED">Closed</option>
-            </select>
-        </div>
-
         <!-- All FDs Table -->
         <% if (allFds.isEmpty()) { %>
             <div class="alert alert-info">No fixed deposits found.</div>
@@ -61,7 +55,7 @@
                         </thead>
                         <tbody>
                         <% for (FixedDeposit fd : allFds) { %>
-                        <tr data-status="<%= fd.getStatus() %>">
+                        <tr>
                             <td><strong>#<%= fd.getFdId() %></strong></td>
                             <td><%= fd.getUserId() %></td>
                             <td><%= String.format("%.2f", fd.getAmount()) %></td>
@@ -69,8 +63,7 @@
                             <td><%= fd.getStartDate() %></td>
                             <td><%= fd.getMaturityDate() %></td>
                             <td>
-                                <span class="badge 
-                                <%= "ACTIVE".equals(fd.getStatus()) ? "bg-success" : "bg-secondary" %>">
+                                <span class="badge <%= "ACTIVE".equals(fd.getStatus()) ? "bg-success" : "bg-secondary" %>">
                                     <%= fd.getStatus() %>
                                 </span>
                             </td>
@@ -84,18 +77,33 @@
     </div>
 </div>
 
-<!-- Client-Side Filter Script -->
-<script>
-    document.getElementById("statusFilter").addEventListener("change", function () {
-        const filter = this.value.toUpperCase();
-        const rows = document.querySelectorAll("#fdTable tbody tr");
+<!-- jQuery + DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-        rows.forEach(row => {
-            const status = row.getAttribute("data-status");
-            if (filter === "" || status.includes(filter)) {
-                row.style.display = "";
+
+<script>
+    $(document).ready(function () {
+        var table = $('#fdTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [5, 10, 25, 50],
+            "ordering": true,
+            "searching": true,
+            "language": {
+                "search": "Search FDs:"
+            },
+            dom: 'Bfrtip',
+            buttons: ['copy', 'excel', 'pdf', 'print']
+        });
+
+        // Custom Status Filter
+        $('#statusFilter').on('change', function () {
+            var status = this.value;
+            if (status) {
+                table.column(6).search('^' + status + '$', true, false).draw();
             } else {
-                row.style.display = "none";
+                table.column(6).search('').draw();
             }
         });
     });
