@@ -10,16 +10,10 @@ import com.tss.model.Transfer;
 public class TransferService {
     private TransferDao transferDao = new TransferDao();
 
-    public boolean transfer(int fromAccountId, int toAccountId, BigDecimal amount, String description) throws Exception {
-        Transfer transfer = new Transfer();
-        transfer.setFromAccountId(fromAccountId);
-        transfer.setToAccountId(toAccountId);
-        transfer.setAmount(amount);
-        transfer.setDescription(description);
-        return transferDao.makeTransfer(transfer);
+    public boolean transfer(int fromAccountId, int fromUserId, int toAccountId, int toUserId, BigDecimal amount, String description) throws Exception {
+       
+        return transferDao.makeTransfer(fromUserId,fromAccountId, toUserId,toAccountId, amount, description);
     }
-
-
     public List<Transfer> getTransfers(int accountId) {
         return transferDao.getTransfersByAccount(accountId);
     }

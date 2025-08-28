@@ -1,7 +1,7 @@
 package com.tss.controller;
 
-import com.tss.model.FdApplication;
-import com.tss.service.FdService;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,11 +9,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
+
+import com.tss.model.Account;
+import com.tss.model.FdApplication;
+import com.tss.service.AccountService;
+import com.tss.service.FdService;
 
 @WebServlet("/user/apply-fd")
 public class ApplyFdServlet extends HttpServlet {
     private final FdService fdService = new FdService();
+    private final AccountService accountService = new AccountService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -43,10 +48,29 @@ public class ApplyFdServlet extends HttpServlet {
         }
 
         double amount;
+		BigDecimal balance;
         int tenureMonths;
 
         try {
+        	Account account = accountService.findByUserId(userId);
+        	
+        	if(account == null)
+        	{
+        		session.setAttribute("error", "No Account Found");
+                resp.sendRedirect(req.getContextPath() + "/user/apply-fd");
+                return;
+        	}
+        	
+        	balance =  account.getBalance();
+        	
             amount = Double.parseDouble(req.getParameter("amount"));
+
+        	if (BigDecimal.valueOf(amount).compareTo(balance) > 0) {
+                session.setAttribute("error", "Insufficient balance.");
+                resp.sendRedirect(req.getContextPath() + "/user/apply-fd");
+                return;
+            }        	
+        	
             tenureMonths = Integer.parseInt(req.getParameter("tenureMonths"));
         } catch (NumberFormatException e) {
             session.setAttribute("error", "Invalid amount or tenure.");

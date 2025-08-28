@@ -1,5 +1,3 @@
-// src/main/java/com/tss/service/AccountService.java
-
 package com.tss.service;
 
 import java.math.BigDecimal;
@@ -34,6 +32,11 @@ public class AccountService {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    public int finduserIdByaccountId(int accountId)
+    {
+    	return accountDAO.findUserIdByAccountId(accountId);
     }
 
 //    // Get account by account number (optional)

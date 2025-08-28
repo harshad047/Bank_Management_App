@@ -1,9 +1,13 @@
 package com.tss.dao;
 
-import com.tss.model.Account;
-import com.tss.database.DBConnection;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.tss.database.DBConnection;
+import com.tss.model.Account;
 
 public class AccountDAO {
 
@@ -16,7 +20,26 @@ public class AccountDAO {
         return accNum;
     }
 
-    // Check if account number already exists
+    public int findUserIdByAccountId(int accountId)
+    {
+    	int userId = 0;
+    	String sql = "SELECT user_id FROM accounts where account_id = ?";
+    	try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+    		
+    		ps.setInt(1, accountId);
+    		ResultSet rs =ps.executeQuery();
+    		
+    		if(rs.next())
+    		{
+    			return rs.getInt(1);
+    		}
+    	} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return userId;
+    }
     public boolean existsByAccountNumber(String accountNumber) throws SQLException {
         String sql = "SELECT COUNT(*) FROM accounts WHERE account_number = ?";
         try (Connection conn = DBConnection.getConnection();

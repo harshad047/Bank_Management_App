@@ -22,6 +22,13 @@
 			href="${pageContext.request.contextPath}/user/transfer"
 			class="nav-link"> <i class="fas fa-money-check-alt"></i> Transfer
 		</a></li>
+		
+		<!-- ✅ New Manage Beneficiary Button -->
+		<li class="nav-item"><a
+			href="${pageContext.request.contextPath}/user/beneficiaries"
+			class="nav-link"> <i class="fas fa-users"></i> Manage Beneficiaries
+		</a></li>
+		
 		<li class="nav-item"><a
 			href="${pageContext.request.contextPath}/user/complaints"
 			class="nav-link"> <i class="fas fa-comment-alt"></i> Complaints
@@ -48,7 +55,5 @@
 			class="nav-link text-danger"> <i class="fas fa-sign-out-alt"></i>
 				Logout
 		</a></li>
-		
-
 	</ul>
 </nav>

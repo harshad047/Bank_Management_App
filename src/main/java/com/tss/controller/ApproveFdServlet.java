@@ -2,22 +2,29 @@
 
 package com.tss.controller;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
+import com.tss.model.Account;
 import com.tss.model.FdApplication;
+import com.tss.service.AccountService;
 import com.tss.service.AdminApprovalService;
 import com.tss.service.FdService;
+import com.tss.service.TransactionService;
 
 @WebServlet("/approve-fd")
 public class ApproveFdServlet extends HttpServlet {
     private final FdService fdService = new FdService();
     private final AdminApprovalService approvalService = new AdminApprovalService();
+    private final TransactionService transactionService = new TransactionService();
+    private final AccountService accountService = new AccountService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -39,7 +46,6 @@ public class ApproveFdServlet extends HttpServlet {
             return;
         }
 
-        // ✅ 1. Get FD Application to retrieve userId
         FdApplication app = fdService.getApplicationById(fdAppId);
         if (app == null) {
             session.setAttribute("error", "FD application not found.");
@@ -47,6 +53,8 @@ public class ApproveFdServlet extends HttpServlet {
             return;
         }
 
+        
+        
         // ✅ 2. Now you have userId
         int userId = app.getUserId();
 
@@ -58,6 +66,38 @@ public class ApproveFdServlet extends HttpServlet {
         if (success) {
             String status = action.equalsIgnoreCase("approve") ? "APPROVED" : "REJECTED";
             String remarks = "FD Request " + status;
+            
+          
+            if ("approved".equalsIgnoreCase(status)) {
+                BigDecimal amount = null;
+
+                // Safely extract amount
+                Object amtObj = app.getAmount();
+                if (amtObj instanceof BigDecimal) {
+                    amount = (BigDecimal) amtObj;
+                } else if (amtObj instanceof Number) {
+                    amount = BigDecimal.valueOf(((Number) amtObj).doubleValue());
+                }
+
+                if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+                    session.setAttribute("error", "Invalid FD amount.");
+                    resp.sendRedirect(req.getContextPath() + "/admin/fd-requests");
+                    return;
+                }
+                
+                Account account = accountService.findByUserId(userId);
+                
+                if(account == null)
+                {
+                	session.setAttribute("error", "Account Not Found");
+                    resp.sendRedirect(req.getContextPath() + "/admin/fd-requests");
+                    return;
+                }
+                
+                String description = "FD Approved Of Amount"+amount;
+                
+                transactionService.debit(userId,account.getAccountId() , amount, description);
+            }
 
             approvalService.logApproval(userId, adminId, status, remarks);
 
@@ -66,7 +106,6 @@ public class ApproveFdServlet extends HttpServlet {
             session.setAttribute("error", "❌ Failed to process FD application.");
         }
 
-        // ✅ 5. Redirect back to approve view
         resp.sendRedirect(req.getContextPath() + "/fd-approve.jsp");
     }
 
