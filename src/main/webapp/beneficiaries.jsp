@@ -7,85 +7,102 @@
 <head>
     <title>Manage Beneficiaries</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { background-color: #1565c0; min-height: 100vh; }
+        .sidebar a { color: white; }
+        .sidebar a:hover { background-color: #0d47a1; }
+    </style>
 </head>
-<body class="p-4">
+<body>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <jsp:include page="user-sidebar.jsp" />
 
-<h3>Manage Beneficiaries</h3>
-<hr/>
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <h3><i class="fas fa-users"></i> Manage Beneficiaries</h3>
+        <hr/>
 
-<!-- Add Beneficiary Form -->
-<form action="${pageContext.request.contextPath}/user/beneficiaries" method="post" class="mb-4">
-    <input type="hidden" name="action" value="add"/>
+        <!-- ✅ Add Beneficiary Form -->
+        <form action="${pageContext.request.contextPath}/user/beneficiaries" method="post" class="mb-4">
+            <input type="hidden" name="action" value="add"/>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label for="beneficiaryAccId" class="form-label">Select Beneficiary Account</label>
-            <select name="beneficiaryAccId" id="beneficiaryAccId" class="form-select" required>
-                <option value="">-- Select Account --</option>
-                <%
-                    List<Account> accounts = (List<Account>) request.getAttribute("accounts");
-                    if (accounts != null) {
-                        for (Account acc : accounts) {
-                %>
-                    <option value="<%= acc.getAccountId() %>">
-                        <%= acc.getAccountNumber() %> (Balance: <%= acc.getBalance() %>)
-                    </option>
-                <%
-                        }
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="beneficiaryAccId" class="form-label">Select Beneficiary Account</label>
+                    <select name="beneficiaryAccId" id="beneficiaryAccId" class="form-select" required>
+                        <option value="">-- Select Account --</option>
+                        <%
+                            List<Account> accounts = (List<Account>) request.getAttribute("accounts");
+                            if (accounts != null) {
+                                for (Account acc : accounts) {
+                        %>
+                            <option value="<%= acc.getAccountId() %>">
+                                <%= acc.getAccountNumber() %> (Balance: <%= acc.getBalance() %>)
+                            </option>
+                        <%
+                                }
+                            }
+                        %>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="nickname" class="form-label">Nickname</label>
+                    <input type="text" name="nickname" id="nickname" class="form-control" required/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Beneficiary</button>
+        </form>
+
+        <hr/>
+
+        <!-- ✅ List of Beneficiaries -->
+        <h4>Existing Beneficiaries</h4>
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nickname</th>
+                    <th>Account Number</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <%
+                List<Beneficiary> beneficiaries = (List<Beneficiary>) request.getAttribute("beneficiaries");
+                if (beneficiaries != null && !beneficiaries.isEmpty()) {
+                    for (Beneficiary b : beneficiaries) {
+            %>
+                <tr>
+                    <td><%= b.getBeneficiaryId() %></td>
+                    <td><%= b.getNickname() %></td>
+                    <td><%= b.getBeneficiaryAccId() %></td>
+                    <td>
+                        <form action="${pageContext.request.contextPath}/user/beneficiaries" method="post" style="display:inline;">
+                            <input type="hidden" name="action" value="remove"/>
+                            <input type="hidden" name="beneficiaryId" value="<%= b.getBeneficiaryId() %>"/>
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            <%
                     }
-                %>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <label for="nickname" class="form-label">Nickname</label>
-            <input type="text" name="nickname" id="nickname" class="form-control" required/>
-        </div>
+                } else {
+            %>
+                <tr><td colspan="4" class="text-center">No beneficiaries found</td></tr>
+            <%
+                }
+            %>
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">Add Beneficiary</button>
-</form>
-
-<hr/>
-
-<!-- List of Beneficiaries -->
-<h4>Existing Beneficiaries</h4>
-<table class="table table-bordered">
-    <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>Nickname</th>
-            <th>Account Number</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-    <%
-        List<Beneficiary> beneficiaries = (List<Beneficiary>) request.getAttribute("beneficiaries");
-        if (beneficiaries != null && !beneficiaries.isEmpty()) {
-            for (Beneficiary b : beneficiaries) {
-    %>
-        <tr>
-            <td><%= b.getBeneficiaryId() %></td>
-            <td><%= b.getNickname() %></td>
-            <td><%= b.getBeneficiaryAccId() %></td>
-            <td>
-                <form action="${pageContext.request.contextPath}/user/beneficiaries" method="post" style="display:inline;">
-                    <input type="hidden" name="action" value="remove"/>
-                    <input type="hidden" name="beneficiaryId" value="<%= b.getBeneficiaryId() %>"/>
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
-            </td>
-        </tr>
-    <%
-            }
-        } else {
-    %>
-        <tr><td colspan="4" class="text-center">No beneficiaries found</td></tr>
-    <%
-        }
-    %>
-    </tbody>
-</table>
-
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome for icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
