@@ -7,7 +7,6 @@
 <title>User Transactions</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<!-- ✅ DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"/>
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css"/>
 <style>
@@ -24,30 +23,41 @@
 
     <!-- Main Content -->
     <div class="flex-grow-1 p-4">
-        <h2>
-            <i class="fas fa-exchange-alt"></i> Perform Transaction
-        </h2>
+        <h2><i class="fas fa-exchange-alt"></i> Perform Transaction</h2>
         <hr />
 
         <!-- ✅ Success / Error Messages -->
         <c:if test="${param.success == '1'}">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 ✅ Transaction completed successfully!
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </c:if>
 
         <c:if test="${not empty param.error}">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 ❌ ${param.error}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </c:if>
 
-        <div class="row">
-            <!-- Credit Form -->
-            <div class="col-md-6">
-                <div class="card border-success mb-3">
+        <!-- ✅ Action Buttons (Centered) -->
+        <div class="mb-3 d-flex justify-content-center">
+            <button class="btn btn-success me-2" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#depositForm" aria-expanded="false" aria-controls="depositForm">
+                <i class="fas fa-arrow-down"></i> Deposit
+            </button>
+            <button class="btn btn-danger" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#withdrawForm" aria-expanded="false" aria-controls="withdrawForm">
+                <i class="fas fa-arrow-up"></i> Withdraw
+            </button>
+        </div>
+
+        <!-- ✅ Container for forms -->
+        <div id="formsContainer">
+            <!-- Deposit Form -->
+            <div class="collapse" id="depositForm" data-bs-parent="#formsContainer">
+                <div class="card border-success mx-auto mb-3" style="max-width: 500px;">
                     <div class="card-header bg-success text-white">
                         <i class="fas fa-arrow-down"></i> Credit (Deposit)
                     </div>
@@ -69,9 +79,9 @@
                 </div>
             </div>
 
-            <!-- Debit Form -->
-            <div class="col-md-6">
-                <div class="card border-danger mb-3">
+            <!-- Withdraw Form -->
+            <div class="collapse" id="withdrawForm" data-bs-parent="#formsContainer">
+                <div class="card border-danger mx-auto mb-3" style="max-width: 500px;">
                     <div class="card-header bg-danger text-white">
                         <i class="fas fa-arrow-up"></i> Debit (Withdraw)
                     </div>
@@ -94,7 +104,7 @@
             </div>
         </div>
 
-        <!-- Show Transaction History -->
+        <!-- ✅ Transaction History -->
         <h3 class="mt-4">Recent Transactions</h3>
         <table id="transactionTable" class="table table-bordered table-striped">
             <thead class="table-dark">
@@ -111,7 +121,16 @@
                 <c:forEach var="txn" items="${transactions}">
                     <tr>
                         <td>${txn.txnId}</td>
-                        <td>${txn.txnType}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${txn.txnType == 'CREDIT'}">
+                                    <span class="text-success fw-bold">Credit</span>
+                                </c:when>
+                                <c:when test="${txn.txnType == 'DEBIT'}">
+                                    <span class="text-danger fw-bold">Debit</span>
+                                </c:when>
+                            </c:choose>
+                        </td>
                         <td>₹${txn.amount}</td>
                         <td>${txn.description}</td>
                         <td>${txn.txnTime}</td>
@@ -123,13 +142,11 @@
     </div>
 </div>
 
-<!-- Bootstrap JS -->
+<!-- Bootstrap + jQuery + DataTables -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- ✅ DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<!-- ✅ DataTables Buttons -->
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -151,6 +168,5 @@
         });
     });
 </script>
-
 </body>
 </html>

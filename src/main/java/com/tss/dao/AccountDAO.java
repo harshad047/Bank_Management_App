@@ -151,5 +151,21 @@ public class AccountDAO {
         }
         return null;
     }
+    
+ // Get account by account number
+    public Account findByAccountNumber(String accountNumber) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE account_number = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, accountNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapToAccount(rs);
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

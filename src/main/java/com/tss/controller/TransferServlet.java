@@ -27,7 +27,7 @@ public class TransferServlet extends HttpServlet {
     @Override
     public void init() {
         transferService = new TransferService();
-        accountService = new AccountService();   // ✅ FIX: initialize service
+        accountService = new AccountService();
     }
 
     @Override
@@ -43,33 +43,36 @@ public class TransferServlet extends HttpServlet {
 
         AccountDAO accountDao = new AccountDAO();
         try {
+            // ✅ fetch current account balance
             Account account = accountDao.findByUserId(accountId);
-            BigDecimal balance = account.getBalance();
-            session.setAttribute("balance", balance);
+            if (account != null) {
+                BigDecimal balance = account.getBalance();
+                session.setAttribute("balance", balance);
+            }
         } catch (SQLException e) {
             System.out.println("[TransferServlet][doGet] Error fetching account balance: " + e.getMessage());
         }
 
-        // ✅ fetch transfers for current account
+        // ✅ fetch transfer history
         List<Transfer> transfers = transferService.getTransfers(accountId);
         req.setAttribute("transfers", transfers);
 
-        // ✅ fetch other accounts for dropdown
-        List<Account> accounts = transferService.getActiveAccountsExcluding(accountId);
-        req.setAttribute("accounts", accounts);
-
-        // ✅ success/error handling
+        // ✅ handle success/error messages
         String successParam = req.getParameter("success");
         String errorParam = req.getParameter("error");
+
         if (successParam != null) {
             req.setAttribute("success", "Transfer successful!");
         }
         if ("insufficient".equals(errorParam)) {
             req.setAttribute("error", "Insufficient balance to complete the transfer!");
+        } else if ("notfound".equals(errorParam)) {
+            req.setAttribute("error", "Receiver account not found!");
         } else if (errorParam != null) {
             req.setAttribute("error", "Transfer failed!");
         }
 
+        // ✅ forward to JSP
         req.getRequestDispatcher("/transfer.jsp").forward(req, resp);
     }
 
@@ -86,16 +89,38 @@ public class TransferServlet extends HttpServlet {
         int fromUserId = (int) session.getAttribute("userId");
 
         try {
-            int toAccountId = Integer.parseInt(req.getParameter("receiverId"));
-            int toUserId = accountService.finduserIdByaccountId(toAccountId);
+            // ✅ retrieve receiver account number from form
+            String receiverAccountNumber = req.getParameter("receiverAccount");
 
+            if (receiverAccountNumber == null || receiverAccountNumber.trim().isEmpty()) {
+                resp.sendRedirect("transfer?error=1");
+                return;
+            }
+
+            // ✅ find account by number
+            Account receiver = accountService.findByAccountNumber(receiverAccountNumber);
+            if (receiver == null) {
+                // specific error for account not found
+                resp.sendRedirect("transfer?error=notfound");
+                return;
+            }
+
+            int toAccountId = receiver.getAccountId();
+            int toUserId = receiver.getUserId();
+
+            // ✅ amount
             BigDecimal amount = new BigDecimal(req.getParameter("amount"));
             String description = req.getParameter("description"); // optional
 
-            // ✅ FIX: Call correct service method
-            boolean success = transferService.transfer(fromAccountId, fromUserId, 
-                                                       toAccountId, toUserId, 
-                                                       amount, description);
+            // ✅ perform transfer
+            boolean success = transferService.transfer(
+                    fromAccountId,
+                    fromUserId,
+                    toAccountId,
+                    toUserId,
+                    amount,
+                    description
+            );
 
             if (success) {
                 resp.sendRedirect("transfer?success=1");

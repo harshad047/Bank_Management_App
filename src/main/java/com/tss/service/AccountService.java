@@ -39,15 +39,15 @@ public class AccountService {
     	return accountDAO.findUserIdByAccountId(accountId);
     }
 
-//    // Get account by account number (optional)
-//    public Account findByAccountNumber(String accountNumber) {
-//        try {
-//            return accountDAO.existsByAccountNumber(accountNumber);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
+
+    public Account findByAccountNumber(String accountNumber) {
+        try {
+            return accountDAO.findByAccountNumber(accountNumber);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
  // com.tss.service.AccountService.java
 

@@ -39,16 +39,11 @@
             <form action="${pageContext.request.contextPath}/user/transfer" method="post" class="card p-4 shadow-sm">
                 <input type="hidden" id="currentBalance" value="${balance}"/>
 
+                <!-- Receiver Account Number -->
                 <div class="mb-3">
-                    <label for="receiverId" class="form-label">Select Receiver</label>
-                    <select name="receiverId" id="receiverId" class="form-select" required>
-                        <option value="">-- Select Account --</option>
-                        <c:forEach var="acc" items="${accounts}">
-                            <option value="${acc.accountId}">
-                                ${acc.accountNumber} - ${acc.accountHolderName} (${acc.accountType})
-                            </option>
-                        </c:forEach>
-                    </select>
+                    <label for="receiverAccount" class="form-label">Receiver Account Number</label>
+                    <input type="text" name="receiverAccount" id="receiverAccount"
+                           class="form-control" placeholder="Enter receiver's account number" required />
                 </div>
 
                 <div class="mb-3">
