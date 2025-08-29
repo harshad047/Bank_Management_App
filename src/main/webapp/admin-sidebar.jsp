@@ -40,7 +40,7 @@ body {
 		</a></li>
 		<li class="nav-item"><a
 			href="${pageContext.request.contextPath}/admin/manage-users"
-			class="nav-link"> <i class="fas fa-users"></i> Manage Users
+			class="nav-link"> <i class="fas fa-users"></i> Manage Accounts
 		</a></li>
 		<li class="nav-item"><a
 			href="${pageContext.request.contextPath}/admin/approve-users"

@@ -44,7 +44,7 @@ body { background-color: #f4f6f9; }
 
     <!-- Main Content -->
     <div class="flex-grow-1 p-4">
-        <h2><i class="fas fa-users"></i> Manage Users</h2>
+        <h2><i class="fas fa-users"></i> Manage Accounts</h2>
         <hr>
 
         <!-- Search Bar -->
